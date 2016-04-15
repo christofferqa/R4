@@ -30,11 +30,11 @@ echo "Running "  $PROTOCOL $SITE " @ " $OUTDIR
 rm -rf $OUTDIR
 mkdir -p $OUTRUNNER
 
-echo "Running CMD: $RECORD $SITE $OUTDIR --verbose >> $OUTRUNNER/record.log 2>> $OUTRUNNER/record.log"
-$RECORD $SITE $OUTDIR --verbose >> $OUTRUNNER/record.log 2>> $OUTRUNNER/record.log
+echo "Running CMD: $RECORD $SITE $OUTDIR --verbose --auto >> $OUTRUNNER/record.log 2>> $OUTRUNNER/record.log"
+$RECORD $SITE $OUTDIR --verbose --auto >> $OUTRUNNER/record.log 2>> $OUTRUNNER/record.log
 if [[ $? == 0 ]] ; then
-    echo "Running CMD: $MC $SITE $OUTDIR --verbose --depth 1  >> $OUTRUNNER/mc.log 2>> $OUTRUNNER/mc.log"
-    $MC $SITE $OUTDIR --verbose --depth 1  >> $OUTRUNNER/mc.log 2>> $OUTRUNNER/mc.log
+    echo "Running CMD: $MC $SITE $OUTDIR --verbose --auto --depth 1  >> $OUTRUNNER/mc.log 2>> $OUTRUNNER/mc.log"
+    $MC $SITE $OUTDIR --verbose --auto --depth 1  >> $OUTRUNNER/mc.log 2>> $OUTRUNNER/mc.log
     if [[ ! $? == 0 ]] ; then
         echo "model-checker errord out, see $OUTRUNNER/mc.log"
     elif [ ! -d $OUTDIR/base ]; then
