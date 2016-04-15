@@ -10,6 +10,7 @@ import subprocess
 from builtins import FileNotFoundError, NotADirectoryError
 from bs4 import BeautifulSoup
 import simplejson
+import traceback
 
 def gen_varlist_memlist(base, port):
     try:
@@ -57,6 +58,8 @@ class ERRaceClassifier(object):
                 gen_varlist_memlist(os.path.join(self.website_dir, parent), namespace)
 
             try:
+                #print('varlist path:')
+                #print(varlist_path)#debug
                 with open(varlist_path, 'r') as fp:
                     self._cache[parent] = BeautifulSoup(fp, 'html5lib')
             except FileNotFoundError:
@@ -67,6 +70,10 @@ class ERRaceClassifier(object):
         if soup is not None:
 
             try:
+                #my_links = soup#debug
+
+                #print(my_links)#debug
+
                 race_row = soup\
                     .find('a', href='race?id=%s' % id)\
                     .find_parent('tr')\
@@ -82,6 +89,11 @@ class ERRaceClassifier(object):
                 #raise e
                 race_data['er_classification'] = 'PARSE_ERROR'
                 race_data['er_classification_details'] = ''
+                print('Exception in inject_classification() @ report.py')
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+                print(''.join(lines))
+
         else:
             race_data['er_classification'] = 'UNKNOWN'
             race_data['er_classification_details'] = ''

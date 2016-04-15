@@ -3,7 +3,6 @@
 RECORD=$WEBERA_DIR/R4/record.sh
 MC=$WEBERA_DIR/R4/model-check.sh
 
-mkdir -p output
 
 OUTDIR=~/r4tmp/$RANDOM
 while [ -f $OUTDIR ]; do
@@ -13,15 +12,26 @@ done
 OUTRUNNER=$OUTDIR/runner
 
 if (( ! $# > 0 )); then
-    echo "Usage: <website URL>"  
-    echo "Outputs result to output/<website dir>"
+    echo "Usage: <website URL> <dst_output_dir>"  
+    echo "Outputs result to <dst_output_dir>/<website dir>"
     exit 1
 fi
 
-PROTOCOL=http
+
+DST_OUTPUT_DIR=output
+
 
 if (( $# == 2 )); then
-    PROTOCOL=$2
+   DST_OUTPUT_DIR=$2
+fi
+
+mkdir -p $DST_OUTPUT_DIR
+
+
+PROTOCOL=http
+
+if (( $# == 3 )); then
+    PROTOCOL=$3
 fi
 
 SITE=$1
@@ -48,6 +58,6 @@ fi
 ID=${SITE//[:\/\.]/\-}
 
 rm -rf output/$ID
-mv $OUTDIR output/$ID
+mv $OUTDIR $DST_OUTPUT_DIR/$ID
 
 

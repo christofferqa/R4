@@ -21,7 +21,10 @@ sleep 2
 while [[ $# > 0 ]]
 do
     EVENT_ACTION_ID=$1
+    OLD_HTTP_PROXY=$http_proxy
+    unset http_proxy
     wget --quiet --output-document $OUTDIR/varlist-$EVENT_ACTION_ID.code http://localhost:$PORT/code?focus=$EVENT_ACTION_ID
+    export http_proxy=$OLD_HTTP_PROXY
     shift
 done
 

@@ -20,9 +20,11 @@ PORT=$2
 if [ -f $OUTDIR/schedule.data ]; then
     $BER_BIN $ER_CLASSIFY_EXTRA -drop_node_analysis=false -port=$PORT $OUTDIR/ER_actionlog &
     sleep 5
+    OLD_HTTP_PROXY=$http_proxy
+    unset http_proxy
     wget --quiet --output-document $OUTDIR/varlist http://localhost:$PORT/varlist
     wget --quiet --output-document $OUTDIR/memlist http://localhost:$PORT/varlist?filter_level=1
-
+    export http_proxy=$OLD_HTTP_PROXY
     pkill -P $$
 else
     exit 1
