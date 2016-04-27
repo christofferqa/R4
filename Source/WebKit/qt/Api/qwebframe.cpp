@@ -977,6 +977,36 @@ bool QWebFramePrivate::autoEventProvider(void* object, const WTF::EventActionDes
     return true;
 }
 
+bool QWebFrame::runEvent(const char* type, const char* nodeIdentifier) {
+    /**
+     * Use immediate event actions in order to avoid internal races on the node identifiers.
+     *
+     * If we schedule an event action A with a node identifier, and another event action B is executed between the
+     * schedulation of A and execution of A, then it is possible that the node identifier points to the wrong (or a non-existing) node.
+     *
+     */
+
+    WTF::String nodeIdentifier_str = WTF::String(nodeIdentifier);
+
+    QWebElement target = d->findElement(nodeIdentifier_str);
+
+    if (!target.isNull()) {
+        std::stringstream params;
+        params << type << ",";
+        params << nodeIdentifier;
+
+        WTF::EventActionDescriptor descriptor(WTF::USER_INTERFACE, "AUTO", params.str());
+
+        threadGlobalData().threadTimers().eventActionRegister()->enterImmediateEventAction(ActionLog::USER_INTERFACE, descriptor);
+        d->triggerEventOnNode(EventAttachLog::StrEventType(type), nodeIdentifier_str, target);
+        threadGlobalData().threadTimers().eventActionRegister()->exitImmediateEventAction();
+    } else {
+        std::cerr << "Warning: Node (" << nodeIdentifier << ") not found..." << std::endl;
+    }
+
+    return true;
+}
+
 // SRL: A helper method for performing automatic exploration of a web page:
 //  - automatic generation of mouse events, clicking, focus events, filling forms.
 bool QWebFrame::runAutomaticExploration() {

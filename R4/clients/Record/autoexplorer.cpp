@@ -38,6 +38,8 @@ AutoExplorer::AutoExplorer(QMainWindow* window, QWebFrame* frame)
     , m_numFramesLoading(0)
     , m_numEventActionsExploredLimit(128)
     , m_numFailedExplorationAttempts(0)
+    , m_triggerEventType("")
+    , m_triggerNodeIdentifier("")
 {
 
     // Track the current number of frames being loaded
@@ -84,6 +86,33 @@ void AutoExplorer::explore(const QString& url, unsigned int preExploreTimeout, u
     connect(&m_explorationKeepAliveTimer, SIGNAL(timeout()), this, SLOT(explorationKeepAlive()));
 }
 
+void AutoExplorer::trigger(const QString& url, const QString& eventType, const QString& nodeIdentifier, unsigned int preExploreTimeout)
+{
+    m_triggerEventType = eventType;
+    m_triggerNodeIdentifier = nodeIdentifier;
+
+    m_frame->load(url);
+
+    // preExploreTimeout - the time we will allow the analysis to run before the page is loaded and exploration starts
+    // if we can't reach this timeout then we will stop
+
+    if (preExploreTimeout > 0) {
+        m_preExplorationTimer.setInterval(preExploreTimeout * 1000);
+        m_preExplorationTimer.setSingleShot(true);
+
+        connect(m_frame, SIGNAL(loadStarted()), &m_preExplorationTimer, SLOT(start()));
+        connect(&m_preExplorationTimer, SIGNAL(timeout()), this, SLOT(stop()));
+
+        m_preExplorationTimer.start();
+    }
+
+    // This timer is used to invoke each auto explored event action
+    // The event action is invoked immediately when this timer is fired (it is not deferred to an internal timer)
+
+    m_explorationKeepAliveTimer.setInterval(500); // 500 ms
+    connect(&m_explorationKeepAliveTimer, SIGNAL(timeout()), this, SLOT(triggerEvent()));
+}
+
 void AutoExplorer::explorationKeepAlive()
 {
     if (m_numFramesLoading != 0) {
@@ -111,7 +140,21 @@ void AutoExplorer::explorationKeepAlive()
     }
 
     m_explorationKeepAliveTimer.start();
+}
 
+void AutoExplorer::triggerEvent()
+{
+    if (m_numFramesLoading != 0) {
+        m_explorationKeepAliveTimer.start();
+        return;
+    }
+
+    if (m_numEventActionsExploredLimit != 0) {
+        m_frame->runEvent(m_triggerEventType.toStdString().c_str(), m_triggerNodeIdentifier.toStdString().c_str());
+        m_numEventActionsExploredLimit = 0;
+    }
+
+    connect(&m_explorationKeepAliveTimer, SIGNAL(timeout()), this, SLOT(stop()));
 }
 
 void AutoExplorer::stop() {

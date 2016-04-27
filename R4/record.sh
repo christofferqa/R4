@@ -21,33 +21,36 @@ VERBOSE=0
 AUTO=0
 COOKIESCMD=""
 MOVEMOUSE=0
+TRIGGER_EVENT_TYPE=""
+TRIGGER_NODE_IDENTIFIER=""
 
-while [[ $# > 0 ]]
-do
-
-case $1 in
-    --auto)
-        AUTO=1
-        shift
-    ;;
-    --move-mouse)
-        MOVEMOUSE=1
-        shift
-    ;;
-    --verbose)
-        VERBOSE=1
-        shift
-    ;;
-    --cookie)
-        shift
-        COOKIESCMD="$COOKIESCMD -cookie $1"
-        shift
-    ;;
-    *)
-        echo "Unknown option $1"
-        exit 1
-    ;;
-esac
+while [[ $# > 0 ]]; do
+    case $1 in
+        --auto)
+            AUTO=1
+            ;;
+        --move-mouse)
+            MOVEMOUSE=1
+            ;;
+        --verbose)
+            VERBOSE=1
+            ;;
+        --cookie)
+            shift
+            COOKIESCMD="$COOKIESCMD -cookie $1"
+            ;;
+        --trigger-event-type=*)
+            TRIGGER_EVENT_TYPE="${1#*=}"
+            ;;
+        --trigger-node-identifier=*)
+            TRIGGER_NODE_IDENTIFIER="${1#*=}"
+            ;;
+        *)
+            echo "Unknown option $1"
+            exit 1
+            ;;
+    esac
+    shift
 done
 
 # DO SOMETHING
@@ -73,15 +76,22 @@ else
     fi
 fi
 
+
+if [[ "$TRIGGER_EVENT_TYPE" != "" && "$TRIGGER_NODE_IDENTIFIER" != "" ]] ; then
+    TRIGGERCMD="-hidewindow -trigger -trigger-event-type $TRIGGER_EVENT_TYPE"
+else
+    TRIGGERCMD=""
+fi
+
 echo "Running "  $PROTOCOL $URL " @ " $OUTDIR
 mkdir -p $OUTRECORD
 
-CMD="$RECORD_BIN -out_dir $OUTRECORD $AUTOCMD $VERBOSECMD $COOKIESCMD $PROTOCOL://$URL"
+ARGS="-out_dir $OUTRECORD $AUTOCMD $TRIGGERCMD $VERBOSECMD $COOKIESCMD"
 
 if [[ $VERBOSE -eq 1 ]]; then
-    echo "> $CMD"
-    $CMD 2>&1 | tee $OUTRECORD/out.log
+    echo "> $RECORD_BIN $ARGS"
+    $RECORD_BIN $ARGS -trigger-node-identifier "$TRIGGER_NODE_IDENTIFIER" $PROTOCOL://$URL 2>&1 | tee $OUTRECORD/out.log
 else
-    $CMD &> $OUTRECORD/out.log
+    $RECORD_BIN $ARGS -trigger-node-identifier "$TRIGGER_NODE_IDENTIFIER" $PROTOCOL://$URL &> $OUTRECORD/out.log
 fi
 

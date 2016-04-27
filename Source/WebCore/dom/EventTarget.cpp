@@ -245,6 +245,17 @@ bool EventTarget::fireEventListeners(Event* event)
     			event->type().string().ascii().data(),
     			(event->eventPhase() == Event::AT_TARGET) ? "TARGET" :
     					(event->eventPhase() == Event::CAPTURING_PHASE ? "CAPTURE" : "BUBBLE"));
+
+        if (event->target()) {
+            Node* node = event->target()->toNode();
+            if (node) {
+                WTF::String nodeIdentifier = node->getNodeReplayIdentifier();
+                printf("fire:%s @ %s\n",
+                        event->type().string().ascii().data(),
+                        nodeIdentifier.ascii().data());
+            }
+        }
+
         fireEventListeners(event, d, *listenerVector);
         ActionLogScopeEnd();
     }

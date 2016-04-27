@@ -66,6 +66,10 @@ class QWebFrameData;
 class QWebHitTestResultPrivate;
 class QWebFrame;
 
+namespace WTF {
+class String;
+}
+
 class QWEBKIT_EXPORT QWebHitTestResult {
 public:
     QWebHitTestResult();
@@ -139,6 +143,7 @@ public:
     QString toPlainText() const;
     QString renderTreeDump() const;
 
+    bool runEvent(const char* type, const char* nodeIdentifier);
     bool runAutomaticExploration();
     void enableReplayUserEventMode();
 

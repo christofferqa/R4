@@ -37,6 +37,7 @@ public:
 
 public slots:
     void explore(const QString& url, unsigned int preExploreTimeout, unsigned int explorationTimeout);
+    void trigger(const QString& url, const QString& eventType, const QString& nodeIdentifier, unsigned int preExploreTimeout);
 
 private slots:
     void frameLoadStarted();
@@ -45,6 +46,7 @@ private slots:
     void differentUrl(QUrl);
     void stop();
     void explorationKeepAlive();
+    void triggerEvent();
 
 signals:
     void done();
@@ -65,6 +67,9 @@ private:
 
     unsigned int m_numEventActionsExploredLimit;
     unsigned int m_numFailedExplorationAttempts;
+
+    QString m_triggerEventType;
+    QString m_triggerNodeIdentifier;
 };
 
 #endif

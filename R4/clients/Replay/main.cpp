@@ -218,7 +218,7 @@ void ReplayClientApplication::handleUserOptions()
 
     int numArgs = (args.length() - lastArg);
     if (numArgs != 6 && numArgs != 3) {
-        std::cerr << "Missing required arguments" << std::endl;
+        std::cerr << "Missing required arguments (num args: " << numArgs << ")" << std::endl;
         std::exit(1);
     }
 

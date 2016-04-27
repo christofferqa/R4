@@ -78,6 +78,10 @@ private:
     unsigned int m_autoExploreTimout;
     bool m_autoExplore;
 
+    QString m_triggerEventType;
+    QString m_triggerNodeIdentifier;
+    bool m_trigger;
+
     bool m_showWindow;
 
     WebCore::QNetworkReplyControllableFactoryLive* m_network;
@@ -100,6 +104,9 @@ RecordClientApplication::RecordClientApplication(int& argc, char** argv)
     , m_autoExplorePreTimout(30)
     , m_autoExploreTimout(30)
     , m_autoExplore(false)
+    , m_triggerEventType("click")
+    , m_triggerNodeIdentifier("")
+    , m_trigger(false)
     , m_showWindow(true)
     , m_timeProvider(new TimeProviderRecord())
     , m_randomProvider(new RandomProviderRecord())
@@ -146,6 +153,9 @@ RecordClientApplication::RecordClientApplication(int& argc, char** argv)
     if (m_autoExplore) {
         m_autoExplorer->explore(m_url, m_autoExplorePreTimout, m_autoExploreTimout);
         QObject::connect(m_autoExplorer, SIGNAL(done()), this, SLOT(slOnCloseEvent()));
+    } else if (m_trigger) {
+        m_autoExplorer->trigger(m_url, m_triggerEventType, m_triggerNodeIdentifier, m_autoExplorePreTimout);
+        QObject::connect(m_autoExplorer, SIGNAL(done()), this, SLOT(slOnCloseEvent()));
     } else {
         loadWebsite(m_url);
     }
@@ -167,6 +177,9 @@ void RecordClientApplication::handleUserOptions()
                  << "[-autoexplore]"
                  << "[-autoexplore-timeout]"
                  << "[-pre-autoexplore-timeout]"
+                 << "[-trigger]"
+                 << "[-trigger-event-type]"
+                 << "[-trigger-node-identifier]"
                  << "[-hidewindow]"
                  << "[-verbose]"
                  << "[-proxy URL:PORT]"
@@ -207,6 +220,23 @@ void RecordClientApplication::handleUserOptions()
     int outdirIndex = args.indexOf("-out_dir");
     if (outdirIndex != -1) {
          m_outdir = takeOptionValue(&args, outdirIndex);
+    }
+
+    int triggerIndex = args.indexOf("-trigger");
+    if (triggerIndex != -1) {
+        m_trigger = true;
+    }
+
+    int triggerEventTypeIndex = args.indexOf("-trigger-event-type");
+    if (triggerEventTypeIndex != -1) {
+        m_triggerEventType = takeOptionValue(&args, triggerEventTypeIndex);
+        qDebug() << "m_triggerEventType " << m_triggerEventType.toStdString().c_str() << "\n";
+    }
+
+    int triggerNodeIdentifierIndex = args.indexOf("-trigger-node-identifier");
+    if (triggerNodeIdentifierIndex != -1) {
+        m_triggerNodeIdentifier = takeOptionValue(&args, triggerNodeIdentifierIndex);
+        qDebug() << "triggerNodeIdentifier " << m_triggerNodeIdentifier.toStdString().c_str() << "\n";
     }
 
     int timeoutIndex = args.indexOf("-autoexplore-timeout");

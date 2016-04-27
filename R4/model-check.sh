@@ -25,48 +25,48 @@ TIMEOUT=60
 TIMEOUTCMD=""
 BOUND=""
 EXTRAS=""
+TRIGGER_EVENT_TYPE=""
+TRIGGER_NODE_IDENTIFIER=""
 
-while [[ $# > 0 ]]
-do
-
-case $1 in
-    --extras)
-        shift
-        EXTRAS=$1
-        shift
-    ;;
-    --high-time-limit)
-        TIMEOUT="800"
-        TIMEOUTCMD="-scheduler_timeout_ms 150000"
-        shift
-    ;;
-    --old-style-bound)
-        BOUND="-conflict_reversal_bound_oldstyle true"
-        shift
-    ;;
-    --auto)
-        AUTO=1
-        shift
-    ;;
-    --verbose)
-        VERBOSE=1
-        shift
-    ;;
-    --cookie)
-        shift
-        #COOKIESCMD="$COOKIESCMD -cookie $1"
-        shift
-    ;;
-    --depth)
-        shift
-        DEPTH=$1
-        shift
-    ;;
-    *)
-        echo "Unknown option $1"
-        exit 1
-    ;;
-esac
+while [[ $# > 0 ]]; do
+    case $1 in
+        --extras)
+            shift
+            EXTRAS=$1
+            ;;
+        --high-time-limit)
+            TIMEOUT="800"
+            TIMEOUTCMD="-scheduler_timeout_ms 150000"
+            ;;
+        --old-style-bound)
+            BOUND="-conflict_reversal_bound_oldstyle true"
+            ;;
+        --auto)
+            AUTO=1
+            ;;
+        --verbose)
+            VERBOSE=1
+            ;;
+        --cookie)
+            shift
+            #COOKIESCMD="$COOKIESCMD -cookie $1"
+            ;;
+        --depth)
+            shift
+            DEPTH=$1
+            ;;
+        --trigger-event-type=*)
+            TRIGGER_EVENT_TYPE="${1#*=}"
+            ;;
+        --trigger-node-identifier=*)
+            TRIGGER_NODE_IDENTIFIER="${1#*=}"
+            ;;
+        *)
+            echo "Unknown option $1"
+            exit 1
+        ;;
+    esac
+    shift
 done
 
 # DO SOMETHING
@@ -86,11 +86,13 @@ fi
 
 if [[ $AUTO -eq 1 ]]; then
     AUTOCMD="-hidewindow"
+elif [[ "$TRIGGER_EVENT_TYPE" != "" && "$TRIGGER_NODE_IDENTIFIER" != "" ]] ; then
+    AUTOCMD="-hidewindow"
 else
     AUTOCMD="-ignore-mouse-move"
 fi
 
-echo "Running "  $PROTOCOL $URL " @ " $OUTDIR
+echo "Running " $PROTOCOL $URL " @ " $OUTDIR
 
 mkdir -p $OUTRUNNER
 
