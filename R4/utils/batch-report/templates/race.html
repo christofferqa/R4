@@ -95,9 +95,22 @@
 
       <h3>Visual Comparison</h3>
 
-      <img src="{{ race.handle }}-comparison.png" /><br/>
-      <img src="record.png" /><br/>
-      <img src="{{ race.handle }}-replay.png" /><br/>
+      <table class="table" style="width: auto">
+        <thead>
+          <tr>
+            <th>Comparison</th>
+            <th>Baseline</th>
+            <th>Replay</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><img src="{{ race.handle }}-comparison.png" /></td>
+            <td><img src="record.png" /></td>
+            <td><img src="{{ race.handle }}-replay.png" /></td>
+          </tr>
+        </tbody>
+      </table>
 
   </div>
 

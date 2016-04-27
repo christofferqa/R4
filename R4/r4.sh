@@ -19,8 +19,9 @@ TRIGGER_NODE_IDENTIFIER=""
 while [ $# -gt 0 ]; do
     case "$1" in
         --h)
-            echo "Usage: ./r4.sh <website URL> [--manual] [--outdir=<dir>] [--trigger-event-type=<str> --trigger-node-identifier=<str>]"
-            echo "Example: ./r4.sh abc.xyz --trigger-event-type=click --trigger-node-identifier=\"https://abc.xyz/ @ #document[0]/HTML[6]/BODY[3]/...\""
+            echo "Usage: ./r4.sh <website URL> [--manual] [--report] [--outdir=<dir>] [--trigger-event-type=<str> --trigger-node-identifier=<str>]"
+            echo "Example: ./r4.sh abc.xyz --report"
+            echo "Example: ./r4.sh abc.xyz --report --trigger-event-type=click --trigger-node-identifier=\"https://abc.xyz/ @ #document[0]/HTML[6]/BODY[3]/MAIN[1]/DIV[7]/DIV[1]/DIV[5]/P[1]/A[3]\""
             echo ""
             echo "Instructions for obtaining the node identifier:"
             echo "1) run the instrumented WebKit"
@@ -98,5 +99,7 @@ mv $OUTDIR $DST_OUTPUT_DIR/$ID
 
 if [[ "$REPORT" == "true" ]]; then
     mkdir -p report
+
+    echo "Running CMD: ./utils/batch-report/report.py \"website\" output report \"$ID\""
     ./utils/batch-report/report.py "website" output report "$ID"
 fi
