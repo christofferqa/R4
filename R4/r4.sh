@@ -12,6 +12,7 @@ fi
 AUTO="--auto"
 DST_OUTPUT_DIR=output
 REPORT="false"
+PROXY=""
 SITE=""
 TRIGGER_EVENT_TYPE=""
 TRIGGER_NODE_IDENTIFIER=""
@@ -34,6 +35,9 @@ while [ $# -gt 0 ]; do
             ;;
         --outdir=*)
             DST_OUTPUT_DIR="${1#*=}"
+            ;;
+        --proxy)
+            PROXY="--proxy"
             ;;
         --report)
             REPORT="true"
@@ -79,8 +83,8 @@ mkdir -p $DST_OUTPUT_DIR
 
 echo "Running " $SITE " @ " $OUTDIR
 
-echo "Running CMD: $RECORD $SITE $OUTDIR --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier=\"$TRIGGER_NODE_IDENTIFIER\" >> $OUTRUNNER/record.log 2>> $OUTRUNNER/record.log"
-$RECORD $SITE $OUTDIR --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier="$TRIGGER_NODE_IDENTIFIER" >> $OUTRUNNER/record.log 2>> $OUTRUNNER/record.log
+echo "Running CMD: $RECORD $SITE $OUTDIR $PROXY --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier=\"$TRIGGER_NODE_IDENTIFIER\" >> $OUTRUNNER/record.log 2>> $OUTRUNNER/record.log"
+$RECORD $SITE $OUTDIR $PROXY --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier="$TRIGGER_NODE_IDENTIFIER" >> $OUTRUNNER/record.log 2>> $OUTRUNNER/record.log
 if [[ $? == 0 ]] ; then
     echo "Running CMD: $MC $SITE $OUTDIR --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier=\"$TRIGGER_NODE_IDENTIFIER\" --depth 1  >> $OUTRUNNER/mc.log 2>> $OUTRUNNER/mc.log"
     $MC $SITE $OUTDIR --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier="$TRIGGER_NODE_IDENTIFIER" --depth 1  >> $OUTRUNNER/mc.log 2>> $OUTRUNNER/mc.log

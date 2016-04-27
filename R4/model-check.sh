@@ -25,6 +25,7 @@ TIMEOUT=60
 TIMEOUTCMD=""
 BOUND=""
 EXTRAS=""
+PROXYCMD=""
 TRIGGER_EVENT_TYPE=""
 TRIGGER_NODE_IDENTIFIER=""
 
@@ -54,6 +55,9 @@ while [[ $# > 0 ]]; do
         --depth)
             shift
             DEPTH=$1
+            ;;
+        --proxy)
+            PROXYCMD="-proxy 127.0.0.1:8081"
             ;;
         --trigger-event-type=*)
             TRIGGER_EVENT_TYPE="${1#*=}"
@@ -98,7 +102,7 @@ mkdir -p $OUTRUNNER
 
 CMD="/usr/bin/time -p $ER_BIN $BOUND $EXTRAS -conflict_reversal_bound=$DEPTH -in_dir=$OUTRECORD/ -in_schedule_file=$OUTRECORD/schedule.data -tmp_new_schedule_file=$OUTDIR/new_schedule.data -out_dir=$OUTDIR -tmp_error_log=$OUTDIR/out.errors.log -tmp_network_log=$OUTDIR/out.log.network.data -tmp_time_log=$OUTDIR/out.log.time.data -tmp_random_log=$OUTDIR/out.log.random.data -tmp_status_log=$OUTDIR/out.status.data -tmp_png_file=$OUTDIR/out.screenshot.png -tmp_schedule_file=$OUTDIR/out.schedule.data -tmp_stdout=$OUTDIR/stdout.txt -tmp_er_log_file=$OUTDIR/out.ER_actionlog --site=$PROTOCOL://$URL"
 
-REPLAY_CMD="$REPLAY_BIN $AUTOCMD $VERBOSECMD $COOKIESCMD -out_dir $OUTDIR -timeout $TIMEOUT $TIMEOUTCMD -in_dir %s/ \"%s\" %s"
+REPLAY_CMD="$REPLAY_BIN $AUTOCMD $PROXYCMD $VERBOSECMD $COOKIESCMD -out_dir $OUTDIR -timeout $TIMEOUT $TIMEOUTCMD -in_dir %s/ \"%s\" %s"
 
 if [[ $VERBOSE -eq 1 ]]; then
     echo "> $CMD --replay_command=\"$REPLAY_CMD\""

@@ -21,6 +21,7 @@ VERBOSE=0
 AUTO=0
 COOKIESCMD=""
 MOVEMOUSE=0
+PROXYCMD=""
 TRIGGER_EVENT_TYPE=""
 TRIGGER_NODE_IDENTIFIER=""
 
@@ -38,6 +39,9 @@ while [[ $# > 0 ]]; do
         --cookie)
             shift
             COOKIESCMD="$COOKIESCMD -cookie $1"
+            ;;
+        --proxy)
+            PROXYCMD="-proxy 127.0.0.1:8081"
             ;;
         --trigger-event-type=*)
             TRIGGER_EVENT_TYPE="${1#*=}"
@@ -86,10 +90,10 @@ fi
 echo "Running "  $PROTOCOL $URL " @ " $OUTDIR
 mkdir -p $OUTRECORD
 
-ARGS="-out_dir $OUTRECORD $AUTOCMD $TRIGGERCMD $VERBOSECMD $COOKIESCMD"
+ARGS="$PROXYCMD -out_dir $OUTRECORD $AUTOCMD $TRIGGERCMD $VERBOSECMD $COOKIESCMD"
 
 if [[ $VERBOSE -eq 1 ]]; then
-    echo "> $RECORD_BIN $ARGS"
+    echo "> $RECORD_BIN $ARGS -trigger-node-identifier \"$TRIGGER_NODE_IDENTIFIER\" $PROTOCOL://$URL"
     $RECORD_BIN $ARGS -trigger-node-identifier "$TRIGGER_NODE_IDENTIFIER" $PROTOCOL://$URL 2>&1 | tee $OUTRECORD/out.log
 else
     $RECORD_BIN $ARGS -trigger-node-identifier "$TRIGGER_NODE_IDENTIFIER" $PROTOCOL://$URL &> $OUTRECORD/out.log
