@@ -3,6 +3,7 @@
 RECORD=$WEBERA_DIR/R4/record.sh
 MC=$WEBERA_DIR/R4/model-check.sh
 
+<<<<<<< HEAD
 if (( ! $# > 0 )); then
     echo "Usage: <website URL> [--manual] [--outdir=<dir>]"
     echo "Outputs result to <outdir>/<website dir>"
