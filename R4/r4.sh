@@ -4,7 +4,7 @@ RECORD=$WEBERA_DIR/R4/record.sh
 MC=$WEBERA_DIR/R4/model-check.sh
 
 if (( ! $# > 0 )); then
-    echo "Usage: ./r4.sh <website URL> [--manual] [--report] [--outdir=<dir>] [--trigger-event-type=<str> --trigger-node-identifier=<str>]"
+    echo "Usage: ./r4.sh <website URL> [--manual] [--proxy] [--report] [--outdir=<dir>] [--trigger-event-type=<str> --trigger-node-identifier=<str>]"
     echo "Outputs result to <outdir>/<website dir>"
     exit 1
 fi
@@ -20,7 +20,7 @@ TRIGGER_NODE_IDENTIFIER=""
 while [ $# -gt 0 ]; do
     case "$1" in
         --h)
-            echo "Usage: ./r4.sh <website URL> [--manual] [--report] [--outdir=<dir>] [--trigger-event-type=<str> --trigger-node-identifier=<str>]"
+            echo "Usage: ./r4.sh <website URL> [--manual] [--proxy] [--report] [--outdir=<dir>] [--trigger-event-type=<str> --trigger-node-identifier=<str>]"
             echo "Example: ./r4.sh abc.xyz --report"
             echo "Example: ./r4.sh abc.xyz --report --trigger-event-type=click --trigger-node-identifier=\"https://abc.xyz/ @ #document[0]/HTML[6]/BODY[3]/MAIN[1]/DIV[7]/DIV[1]/DIV[5]/P[1]/A[3]\""
             echo ""
@@ -86,6 +86,13 @@ echo "Running " $SITE " @ " $OUTDIR
 echo "Running CMD: $RECORD $SITE $OUTDIR $PROXY --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier=\"$TRIGGER_NODE_IDENTIFIER\" >> $OUTRUNNER/record.log 2>> $OUTRUNNER/record.log"
 $RECORD $SITE $OUTDIR $PROXY --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier="$TRIGGER_NODE_IDENTIFIER" >> $OUTRUNNER/record.log 2>> $OUTRUNNER/record.log
 if [[ $? == 0 ]] ; then
+    if [[ "$TRIGGER_EVENT_TYPE" != "" && "$TRIGGER_NODE_IDENTIFIER" != "" ]] ; then
+        cat $OUTDIR/record/out.log | grep -F "Warning: Node ($TRIGGER_NODE_IDENTIFIER) not found..."
+        if [[ $? == 0 ]] ; then
+            exit 1
+        fi
+    fi
+
     echo "Running CMD: $MC $SITE $OUTDIR --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier=\"$TRIGGER_NODE_IDENTIFIER\" --depth 1  >> $OUTRUNNER/mc.log 2>> $OUTRUNNER/mc.log"
     $MC $SITE $OUTDIR --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier="$TRIGGER_NODE_IDENTIFIER" --depth 1  >> $OUTRUNNER/mc.log 2>> $OUTRUNNER/mc.log
     if [[ ! $? == 0 ]] ; then
