@@ -612,6 +612,23 @@ JSValue JSDOMWindow::setTimeout(ExecState* exec)
     return jsNumber(result);
 }
 
+JSValue JSDOMWindow::postpone(ExecState* exec)
+{
+    ContentSecurityPolicy* contentSecurityPolicy = impl()->document() ? impl()->document()->contentSecurityPolicy() : 0;
+    OwnPtr<ScheduledAction> action = ScheduledAction::create(exec, currentWorld(exec), contentSecurityPolicy);
+    if (exec->hadException())
+        return jsUndefined();
+
+    if (!action)
+        return jsUndefined();
+
+    ExceptionCode ec = 0;
+    impl()->postpone(action.release(), ec);
+    setDOMException(exec, ec);
+
+    return jsUndefined();
+}
+
 JSValue JSDOMWindow::setInterval(ExecState* exec)
 {
     ContentSecurityPolicy* contentSecurityPolicy = impl()->document() ? impl()->document()->contentSecurityPolicy() : 0;

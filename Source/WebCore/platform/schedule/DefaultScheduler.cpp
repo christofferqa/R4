@@ -23,7 +23,10 @@
  */
 
 #include "DefaultScheduler.h"
+#include "DOMTimer.h"
 #include "EventActionRegister.h"
+#include "ScheduledAction.h"
+#include "ScriptExecutionContext.h"
 
 namespace WebCore {
 
@@ -36,12 +39,22 @@ DefaultScheduler::~DefaultScheduler()
 {
 }
 
+bool DefaultScheduler::isReplay()
+{
+    return false;
+}
+
 void DefaultScheduler::eventActionScheduled(const WTF::EventActionDescriptor& descriptor,
                                             EventActionRegister* eventActionRegister)
 {
     if (!m_stopped) {
         eventActionRegister->runEventAction(descriptor);
     }
+}
+
+void DefaultScheduler::postponementScheduled(const WTF::EventActionDescriptor& descriptor,
+                                            EventActionRegister* eventActionRegister)
+{
 }
 
 void DefaultScheduler::eventActionDescheduled(const WTF::EventActionDescriptor&, EventActionRegister*)

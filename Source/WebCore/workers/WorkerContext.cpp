@@ -201,6 +201,11 @@ int WorkerContext::setTimeout(PassOwnPtr<ScheduledAction> action, int timeout)
     return DOMTimer::install(scriptExecutionContext(), action, timeout, true);
 }
 
+void WorkerContext::postpone(PassOwnPtr<ScheduledAction> action)
+{
+    DOMTimer::install(scriptExecutionContext(), action, 50, true);
+}
+
 void WorkerContext::clearTimeout(int timeoutId)
 {
     DOMTimer::removeById(scriptExecutionContext(), timeoutId);

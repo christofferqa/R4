@@ -1,4 +1,6 @@
 /*
+ * Copyright (C) 2008 Apple Inc. All Rights Reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -22,43 +24,42 @@
  *
  */
 
-#include <wtf/ExportMacros.h>
-#include <wtf/Noncopyable.h>
+#ifndef Postponement_h
+#define Postponement_h
+
+#include <map>
+#include <string>
+
+#include "ScriptExecutionContext.h"
+#include "wtf/EventActionSchedule.h"
+#include <wtf/OwnPtr.h>
 #include <wtf/PassOwnPtr.h>
-
-#include "Scheduler.h"
-
-#ifndef DefaultScheduler_h
-#define DefaultScheduler_h
 
 namespace WebCore {
 
-    class ScriptExecutionContext;
     class ScheduledAction;
 
-    class DefaultScheduler : public Scheduler {
-        WTF_MAKE_NONCOPYABLE(DefaultScheduler);
-
+    class Postponement {
     public:
-        DefaultScheduler();
-        ~DefaultScheduler();
+        virtual ~Postponement();
 
-        bool isReplay();
-
-        void eventActionScheduled(const WTF::EventActionDescriptor& descriptor, EventActionRegister* eventActionRegister);
-        void eventActionDescheduled(const WTF::EventActionDescriptor& descriptor, EventActionRegister* eventActionRegister);
-
-        void postponementScheduled(const WTF::EventActionDescriptor& descriptor, EventActionRegister* eventActionRegister);
-
-        void executeDelayedEventActions(EventActionRegister* eventActionRegister);
-
-        virtual void stop();
+        static void install(ScriptExecutionContext*, PassOwnPtr<ScheduledAction>);
+        static unsigned int getNextSameUrlSequenceNumber(const std::string& url, uint line, WTF::EventActionId);
 
     private:
-        bool m_stopped;
+        Postponement(ScriptExecutionContext*, PassOwnPtr<ScheduledAction>);
 
+        virtual void fired();
+
+        static bool firePostponementCallback(void* object, const WTF::EventActionDescriptor& descriptor);
+
+        OwnPtr<ScheduledAction> m_action;
+        ScriptExecutionContext* m_context;
+
+        static std::map<std::string, unsigned int> m_nextSameUrlSequenceNumber;
     };
 
-}
+} // namespace WebCore
 
-#endif
+#endif // Postponement_h
+

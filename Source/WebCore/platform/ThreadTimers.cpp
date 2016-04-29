@@ -57,6 +57,11 @@ static const double maxDurationOfFiringTimers = 0.050;
 
 Scheduler* ThreadTimers::m_scheduler = new DefaultScheduler();
 
+Scheduler* ThreadTimers::getScheduler()
+{
+    return ThreadTimers::m_scheduler;
+}
+
 void ThreadTimers::setScheduler(Scheduler* scheduler)
 {
     delete ThreadTimers::m_scheduler;

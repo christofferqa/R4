@@ -77,6 +77,26 @@ void ReplayScheduler::eventActionScheduled(const WTF::EventActionDescriptor&,
     }
 }
 
+bool ReplayScheduler::isReplay()
+{
+    return true;
+}
+
+void ReplayScheduler::postponementScheduled(const WTF::EventActionDescriptor& descriptor,
+                                           WebCore::EventActionRegister* eventActionRegister)
+{
+    /*std::stringstream ident;
+    ident << m_nextEventActionId;
+
+    std::cout << "Params before: " << descriptor.toString() << std::endl;
+
+    descriptor.patchParameter(2, ident.str());
+
+    std::cout << "Params after: " << descriptor.toString() << std::endl;*/
+
+    m_postponedEvents.append(descriptor);
+}
+
 void ReplayScheduler::executeDelayedEventActions(WebCore::EventActionRegister* eventActionRegister)
 {
     while (executeDelayedEventAction(eventActionRegister)) {
@@ -222,7 +242,7 @@ bool ReplayScheduler::tryExecuteEventActionDescriptor(
     m_timeProvider->setCurrentDescriptorString(QString::fromStdString(nextToSchedule.toUnpatchedString()));
     m_randomProvider->setCurrentDescriptorString(QString::fromStdString(nextToSchedule.toUnpatchedString()));
 
-    bool found = eventActionRegister->runEventAction(m_nextEventActionId, nextToScheduleId, nextToSchedule);
+    bool found = runEventAction(eventActionRegister, nextToScheduleId, nextToSchedule);
 
     m_timeProvider->unsetCurrentDescriptorString();
     m_randomProvider->unsetCurrentDescriptorString();
@@ -332,7 +352,7 @@ bool ReplayScheduler::tryExecuteEventActionDescriptor(
                 m_timeProvider->setCurrentDescriptorString(QString::fromStdString(bestDescriptor.toUnpatchedString()));
                 m_randomProvider->setCurrentDescriptorString(QString::fromStdString(bestDescriptor.toUnpatchedString()));
 
-                found = eventActionRegister->runEventAction(m_nextEventActionId, nextToScheduleId, bestDescriptor);
+                found = runEventAction(eventActionRegister, nextToScheduleId, bestDescriptor);
 
                 m_timeProvider->unsetCurrentDescriptorString();
                 m_randomProvider->unsetCurrentDescriptorString();
@@ -347,6 +367,21 @@ bool ReplayScheduler::tryExecuteEventActionDescriptor(
 
     return found;
 
+}
+
+bool ReplayScheduler::runEventAction(
+        WebCore::EventActionRegister* eventActionRegister,
+        WTF::EventActionId nextToScheduleId,
+        const WTF::EventActionDescriptor& nextToSchedule) {
+
+    WTF::Vector<WTF::EventActionDescriptor> postponedEvents = m_postponedEvents; // copy
+    m_postponedEvents.clear();
+    for (size_t i = 0; i < postponedEvents.size(); ++i) {
+        const WTF::EventActionDescriptor& descriptor = postponedEvents[i];
+        eventActionRegister->runEventAction(descriptor);
+    }
+
+    return eventActionRegister->runEventAction(m_nextEventActionId, nextToScheduleId, nextToSchedule);
 }
 
 void ReplayScheduler::slEventActionTimeout()

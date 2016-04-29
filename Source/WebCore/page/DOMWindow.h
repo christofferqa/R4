@@ -246,6 +246,7 @@ namespace WebCore {
 
         // Timers
         int setTimeout(PassOwnPtr<ScheduledAction>, int timeout, ExceptionCode&);
+        void postpone(PassOwnPtr<ScheduledAction>, ExceptionCode&);
         void clearTimeout(int timeoutId);
         int setInterval(PassOwnPtr<ScheduledAction>, int timeout, ExceptionCode&);
         void clearInterval(int timeoutId);

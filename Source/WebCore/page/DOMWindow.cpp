@@ -80,6 +80,7 @@
 #include "PageTransitionEvent.h"
 #include "Performance.h"
 #include "PlatformScreen.h"
+#include "Postponement.h"
 #include "ScheduledAction.h"
 #include "Screen.h"
 #include "ScriptCallStack.h"
@@ -1487,6 +1488,23 @@ int DOMWindow::setTimeout(PassOwnPtr<ScheduledAction> action, int timeout, Excep
         return -1;
     }
     return DOMTimer::install(context, action, timeout, true);
+}
+
+void DOMWindow::postpone(PassOwnPtr<ScheduledAction> action, ExceptionCode& ec)
+{
+    ScriptExecutionContext* context = scriptExecutionContext();
+    if (!context) {
+        ec = INVALID_ACCESS_ERR;
+        return;
+    }
+    Scheduler* scheduler = ThreadTimers::getScheduler();
+    if (scheduler->isReplay()) {
+        std::cout << "INSTALLING POSTPONEMENT" << std::endl;
+        Postponement::install(context, action);
+    } else {
+        std::cout << "INSTALLING TIMER" << std::endl;
+        DOMTimer::install(context, action, 50, true);
+    }
 }
 
 void DOMWindow::clearTimeout(int timeoutId)

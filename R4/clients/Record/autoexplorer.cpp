@@ -36,6 +36,7 @@ AutoExplorer::AutoExplorer(QMainWindow* window, QWebFrame* frame)
     : m_window(window)
     , m_frame(frame)
     , m_numFramesLoading(0)
+    , m_postExploreTimeout(2)
     , m_numEventActionsExploredLimit(128)
     , m_numFailedExplorationAttempts(0)
     , m_triggerEventType("")
@@ -154,7 +155,18 @@ void AutoExplorer::triggerEvent()
         m_numEventActionsExploredLimit = 0;
     }
 
-    connect(&m_explorationKeepAliveTimer, SIGNAL(timeout()), this, SLOT(stop()));
+    if (m_postExploreTimeout > 0 && !m_postExplorationTimer.isActive()) {
+        std::cout << "Stopping in " << m_postExploreTimeout << "s" << std::endl;
+
+        m_postExplorationTimer.setInterval(m_postExploreTimeout * 1000);
+        m_postExplorationTimer.setSingleShot(true);
+
+        connect(&m_postExplorationTimer, SIGNAL(timeout()), this, SLOT(stop()));
+
+        m_postExplorationTimer.start();
+    } else {
+        connect(&m_explorationKeepAliveTimer, SIGNAL(timeout()), this, SLOT(stop()));
+    }
 }
 
 void AutoExplorer::stop() {

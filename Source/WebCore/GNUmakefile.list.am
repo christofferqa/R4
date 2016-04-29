@@ -3002,6 +3002,8 @@ webcore_sources += \
 	Source/WebCore/page/PointerLock.h \
 	Source/WebCore/page/PointerLockController.cpp \
 	Source/WebCore/page/PointerLockController.h \
+	Source/WebCore/page/Postponement.cpp \
+	Source/WebCore/page/Postponement.h \
 	Source/WebCore/page/PrintContext.cpp \
 	Source/WebCore/page/PrintContext.h \
 	Source/WebCore/page/Screen.cpp \

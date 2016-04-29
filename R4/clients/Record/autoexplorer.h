@@ -62,12 +62,13 @@ private:
 
     QTimer m_preExplorationTimer;
     QTimer m_explorationTimer;
-
+    QTimer m_postExplorationTimer;
     QTimer m_explorationKeepAliveTimer;
+
+    unsigned int m_postExploreTimeout;
 
     unsigned int m_numEventActionsExploredLimit;
     unsigned int m_numFailedExplorationAttempts;
-
     QString m_triggerEventType;
     QString m_triggerNodeIdentifier;
 };

@@ -27,6 +27,7 @@
 
 #include <wtf/ExportMacros.h>
 #include <wtf/Noncopyable.h>
+#include <wtf/PassOwnPtr.h>
 #include <wtf/Vector.h>
 
 #include "wtf/EventActionDescriptor.h"
@@ -34,6 +35,8 @@
 namespace WebCore {
 
 class EventActionRegister;
+class ScriptExecutionContext;
+class ScheduledAction;
 
     class Scheduler {
         WTF_MAKE_NONCOPYABLE(Scheduler);
@@ -42,10 +45,14 @@ class EventActionRegister;
         Scheduler();
         virtual ~Scheduler();
 
+        virtual bool isReplay() = 0;
+
         // Notifies the scheduler that a new event action has been registered to the EventActionRegister by ThreadTimers
         // Some schedulers may not execute the event action immediately, but delay it instead.
         virtual void eventActionScheduled(const WTF::EventActionDescriptor& descriptor, EventActionRegister* eventActionRegister) = 0;
         virtual void eventActionDescheduled(const WTF::EventActionDescriptor& descriptor, EventActionRegister* eventActionRegister) = 0;
+
+        virtual void postponementScheduled(const WTF::EventActionDescriptor& descriptor, EventActionRegister* eventActionRegister) = 0;
 
         // Ask the scheduler to execute any delayed tasks
         // Called at every tick, after scheduling any new event actions

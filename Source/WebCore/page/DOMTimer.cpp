@@ -127,6 +127,8 @@ int DOMTimer::install(ScriptExecutionContext* context, PassOwnPtr<ScheduledActio
     timer->suspendIfNeeded();
     InspectorInstrumentation::didInstallTimer(context, timer->m_timeoutId, timeout, singleShot);
 
+    std::cout << "DOMTimer::install, id=" << timer->m_timeoutId << std::endl;
+
     return timer->m_timeoutId;
 }
 
@@ -149,6 +151,8 @@ void DOMTimer::removeById(ScriptExecutionContext* context, int timeoutId)
 
 void DOMTimer::fired()
 {
+    std::cout << "DOMTimer::fired, id=" << m_timeoutId << std::endl;
+
     ScriptExecutionContext* context = scriptExecutionContext();
     timerNestingLevel = m_nestingLevel;
     ASSERT(!context->activeDOMObjectsAreSuspended());

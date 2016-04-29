@@ -3029,6 +3029,8 @@
             'page/PointerLock.h',
             'page/PointerLockController.cpp',
             'page/PointerLockController.h',
+            'page/Postponement.cpp',
+            'page/Postponement.h',
             'page/PrintContext.cpp',
             'page/Screen.cpp',
             'page/Screen.h',

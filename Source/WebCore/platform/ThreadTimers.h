@@ -86,6 +86,7 @@ namespace WebCore {
         EventActionsHB& happensBefore() { return m_eventActionsHB; }
 
         // Only the scheduler can be static. All the other objects are thread-local.
+        static Scheduler* getScheduler();
         static void setScheduler(Scheduler* scheduler);
 
         void deregisterEventActionHandler(TimerBase* timer);

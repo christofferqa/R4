@@ -205,6 +205,7 @@ module window {
                                  in [Optional=DefaultIsUndefined] long timeout);
         // [Custom] long setTimeout(in TimeoutHandler handler, in long timeout, arguments...);
         // [Custom] long setTimeout(in DOMString code, in long timeout);
+        [Custom] void postpone(in [Optional=DefaultIsUndefined] TimeoutHandler handler);
         void clearTimeout(in [Optional=DefaultIsUndefined] long handle);
         [Custom] long setInterval(in TimeoutHandler handler, in long timeout);
         // [Custom] long setInterval(in TimeoutHandler handler, in long timeout, arguments...);

@@ -33,6 +33,7 @@
 #include <QTimer>
 
 #include <wtf/ExportMacros.h>
+#include <wtf/PassOwnPtr.h>
 #include <wtf/Vector.h>
 
 #include <WebCore/platform/Timer.h>
@@ -60,8 +61,12 @@ public:
     ReplayScheduler(const std::string& schedulePath, QNetworkReplyControllableFactoryReplay* networkProvider, TimeProviderReplay* timeProvider, RandomProviderReplay* randomProvider, int schedulerTimeout);
     ~ReplayScheduler();
 
+    bool isReplay();
+
     void eventActionScheduled(const WTF::EventActionDescriptor& descriptor, WebCore::EventActionRegister* eventActionRegister);
     void eventActionDescheduled(const WTF::EventActionDescriptor&, WebCore::EventActionRegister*) {}
+
+    void postponementScheduled(const WTF::EventActionDescriptor& descriptor, WebCore::EventActionRegister* eventActionRegister);
 
     void executeDelayedEventActions(WebCore::EventActionRegister* eventActionRegister);
     bool tryExecuteEventActionDescriptor(
@@ -129,10 +134,17 @@ private:
 
     bool executeDelayedEventAction(WebCore::EventActionRegister* eventActionRegister);
 
+    bool runEventAction(
+            WebCore::EventActionRegister* eventActionRegister,
+            WTF::EventActionId nextToScheduleId,
+            const WTF::EventActionDescriptor& nextToSchedule);
+
     void debugPrintTimers(std::ostream& out, WebCore::EventActionRegister* eventActionRegister);
 
     WebCore::EventActionSchedule* m_schedule;
     WTF::Vector<WebCore::EventActionScheduleItem> m_schedule_backlog;
+
+    WTF::Vector<WTF::EventActionDescriptor> m_postponedEvents;
 
     QNetworkReplyControllableFactoryReplay* m_networkProvider;
     TimeProviderReplay* m_timeProvider;

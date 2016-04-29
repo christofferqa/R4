@@ -1070,6 +1070,7 @@ SET(WebCore_SOURCES
     page/PerformanceEntryList.cpp
     page/PerformanceNavigation.cpp
     page/PerformanceTiming.cpp
+    page/Postponement.cpp
     page/PrintContext.cpp
     page/Screen.cpp
     page/SecurityOrigin.cpp

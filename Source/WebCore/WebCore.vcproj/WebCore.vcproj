@@ -26574,6 +26574,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\page\Postponement.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\page\Postponement.h"
+				>
+			</File>
+			<File
 				RelativePath="..\page\PrintContext.cpp"
 				>
 			</File>

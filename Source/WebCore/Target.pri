@@ -1043,6 +1043,7 @@ SOURCES += \
     page/PerformanceEntryList.cpp \
     page/PerformanceNavigation.cpp \
     page/PerformanceTiming.cpp \
+    page/Postponement.cpp \
     page/PrintContext.cpp \
     page/Screen.cpp \
     page/scrolling/ScrollingCoordinator.cpp \
@@ -2162,6 +2163,7 @@ HEADERS += \
     page/PageGroupLoadDeferrer.h \
     page/Page.h \
     page/PageVisibilityState.h \
+    page/Postponement.h \
     page/PrintContext.h \
     page/Screen.h \
     page/SecurityOrigin.h \
