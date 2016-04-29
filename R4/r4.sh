@@ -13,6 +13,7 @@ AUTO="--auto"
 DST_OUTPUT_DIR=output
 HIGH_TIME_LIMIT=""
 REPORT="false"
+PROTOCOL="http"
 PROXY=""
 SITE=""
 TRIGGER_EVENT_TYPE=""
@@ -23,7 +24,7 @@ while [ $# -gt 0 ]; do
         --h)
             echo "Usage: ./r4.sh <website URL> [--high-time-limit] [--manual] [--proxy] [--report] [--outdir=<dir>] [--trigger-event-type=<str> --trigger-node-identifier=<str>]"
             echo "Example: ./r4.sh abc.xyz --report"
-            echo "Example: ./r4.sh abc.xyz --report --trigger-event-type=click --trigger-node-identifier=\"https://abc.xyz/ @ #document[0]/HTML[6]/BODY[3]/MAIN[1]/DIV[7]/DIV[1]/DIV[5]/P[1]/A[3]\""
+            echo "Example: ./r4.sh abc.xyz/# --protocol=https --report --trigger-event-type=click --trigger-node-identifier=\"https://abc.xyz/# @ #document[0]/HTML[6]/BODY[3]/MAIN[1]/DIV[7]/DIV[1]/DIV[5]/P[1]/A[3]\""
             echo ""
             echo "Instructions for obtaining the node identifier:"
             echo "1) run the instrumented WebKit"
@@ -39,6 +40,9 @@ while [ $# -gt 0 ]; do
             ;;
         --outdir=*)
             DST_OUTPUT_DIR="${1#*=}"
+            ;;
+        --protocol=*)
+            PROTOCOL="${1#*=}"
             ;;
         --proxy)
             PROXY="--proxy"
@@ -69,7 +73,7 @@ if [[ "$SITE" == "" ]] ; then
     echo "Site is mandatory"
     exit 1
 elif [[ $SITE == http* ]]; then
-    echo "Site must not include protocol"
+    echo "Site must not include protocol: $SITE"
     exit 1
 fi
 
@@ -87,8 +91,8 @@ mkdir -p $DST_OUTPUT_DIR
 
 echo "Running " $SITE " @ " $OUTDIR
 
-echo "Running CMD: $RECORD $SITE $OUTDIR $PROXY --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier=\"$TRIGGER_NODE_IDENTIFIER\" >> $OUTRUNNER/record.log 2>> $OUTRUNNER/record.log"
-$RECORD $SITE $OUTDIR $PROXY --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier="$TRIGGER_NODE_IDENTIFIER" >> $OUTRUNNER/record.log 2>> $OUTRUNNER/record.log
+echo "Running CMD: $RECORD $SITE $OUTDIR $PROXY --protocol=$PROTOCOL --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier=\"$TRIGGER_NODE_IDENTIFIER\" >> $OUTRUNNER/record.log 2>> $OUTRUNNER/record.log"
+$RECORD $SITE $OUTDIR $PROXY --protocol=$PROTOCOL --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier="$TRIGGER_NODE_IDENTIFIER" >> $OUTRUNNER/record.log 2>> $OUTRUNNER/record.log
 if [[ $? == 0 ]] ; then
     if [[ "$TRIGGER_EVENT_TYPE" != "" && "$TRIGGER_NODE_IDENTIFIER" != "" ]] ; then
         cat $OUTDIR/record/out.log | grep -F "Warning: Node ($TRIGGER_NODE_IDENTIFIER) not found..."
@@ -97,8 +101,8 @@ if [[ $? == 0 ]] ; then
         fi
     fi
 
-    echo "Running CMD: $MC $SITE $OUTDIR --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier=\"$TRIGGER_NODE_IDENTIFIER\" $HIGH_TIME_LIMIT --depth 1  >> $OUTRUNNER/mc.log 2>> $OUTRUNNER/mc.log"
-    $MC $SITE $OUTDIR --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier="$TRIGGER_NODE_IDENTIFIER" $HIGH_TIME_LIMIT --depth 1  >> $OUTRUNNER/mc.log 2>> $OUTRUNNER/mc.log
+    echo "Running CMD: $MC $SITE $OUTDIR --protocol=$PROTOCOL --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier=\"$TRIGGER_NODE_IDENTIFIER\" $HIGH_TIME_LIMIT --depth 1  >> $OUTRUNNER/mc.log 2>> $OUTRUNNER/mc.log"
+    $MC $SITE $OUTDIR --protocol=$PROTOCOL --verbose $AUTO $TRIGGER --trigger-event-type=$TRIGGER_EVENT_TYPE --trigger-node-identifier="$TRIGGER_NODE_IDENTIFIER" $HIGH_TIME_LIMIT --depth 1  >> $OUTRUNNER/mc.log 2>> $OUTRUNNER/mc.log
     if [[ ! $? == 0 ]] ; then
         echo "model-checker errord out, see $DST_OUTPUT_DIR/$ID/runner/mc.log"
     elif [ ! -d $OUTDIR/base ]; then

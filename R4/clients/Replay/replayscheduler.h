@@ -138,6 +138,7 @@ private:
             WebCore::EventActionRegister* eventActionRegister,
             WTF::EventActionId nextToScheduleId,
             const WTF::EventActionDescriptor& nextToSchedule);
+    void runPostponedEventActions(WebCore::EventActionRegister* eventActionRegister);
 
     void debugPrintTimers(std::ostream& out, WebCore::EventActionRegister* eventActionRegister);
 
@@ -161,6 +162,7 @@ private:
     unsigned int m_timeout_miliseconds;
     unsigned int m_timeout_aggressive_miliseconds;
 
+    WTF::EventActionId m_lastEventActionId;
     WTF::EventActionId m_nextEventActionId;
 
 private slots:

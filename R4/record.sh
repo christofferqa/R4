@@ -16,11 +16,11 @@ OUTDIR=$2
 shift
 shift
 
-PROTOCOL=http
 VERBOSE=0
 AUTO=0
 COOKIESCMD=""
 MOVEMOUSE=0
+PROTOCOL=http
 PROXYCMD=""
 TRIGGER_EVENT_TYPE=""
 TRIGGER_NODE_IDENTIFIER=""
@@ -39,6 +39,9 @@ while [[ $# > 0 ]]; do
         --cookie)
             shift
             COOKIESCMD="$COOKIESCMD -cookie $1"
+            ;;
+        --protocol=*)
+            PROTOCOL="${1#*=}"
             ;;
         --proxy)
             PROXYCMD="-proxy 127.0.0.1:8081"
@@ -87,7 +90,7 @@ else
     TRIGGERCMD=""
 fi
 
-echo "Running "  $PROTOCOL $URL " @ " $OUTDIR
+echo "Running " $PROTOCOL $URL " @ " $OUTDIR
 mkdir -p $OUTRECORD
 
 ARGS="$PROXYCMD -out_dir $OUTRECORD $AUTOCMD $TRIGGERCMD $VERBOSECMD $COOKIESCMD"

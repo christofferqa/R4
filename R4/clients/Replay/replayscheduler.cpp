@@ -51,6 +51,7 @@ ReplayScheduler::ReplayScheduler(const std::string& schedulePath, QNetworkReplyC
     , m_timeout_use_aggressive(false)
     , m_timeout_miliseconds(schedulerTimeout)
     , m_timeout_aggressive_miliseconds(500)
+    , m_lastEventActionId(-1)
     , m_nextEventActionId(WebCore::HBAllocateEventActionId())
 {
     std::ifstream fp;
@@ -83,17 +84,8 @@ bool ReplayScheduler::isReplay()
 }
 
 void ReplayScheduler::postponementScheduled(const WTF::EventActionDescriptor& descriptor,
-                                           WebCore::EventActionRegister* eventActionRegister)
+                                           WebCore::EventActionRegister*)
 {
-    /*std::stringstream ident;
-    ident << m_nextEventActionId;
-
-    std::cout << "Params before: " << descriptor.toString() << std::endl;
-
-    descriptor.patchParameter(2, ident.str());
-
-    std::cout << "Params after: " << descriptor.toString() << std::endl;*/
-
     m_postponedEvents.append(descriptor);
 }
 
@@ -106,7 +98,18 @@ void ReplayScheduler::executeDelayedEventActions(WebCore::EventActionRegister* e
 
 bool ReplayScheduler::executeDelayedEventAction(WebCore::EventActionRegister* eventActionRegister)
 {
-    if (m_schedule->isEmpty() || m_mode == STOP) {
+
+    int lastIndex = m_schedule->size()-1;
+    for (; lastIndex >= 0; --lastIndex) {
+        const WebCore::EventActionScheduleItem& item = m_schedule->at(lastIndex);
+        const WTF::EventActionDescriptor& descriptor = item.second;
+        if (strcmp(descriptor.getType(), "Postponement") != 0) {
+            break;
+        }
+    }
+
+    if (lastIndex < 0) {
+        runPostponedEventActions(eventActionRegister);
         stop(FINISHED, eventActionRegister);
         return false;
     }
@@ -122,10 +125,12 @@ bool ReplayScheduler::executeDelayedEventAction(WebCore::EventActionRegister* ev
         }
     }
 
-    bool success = tryExecuteEventActionDescriptor(eventActionRegister, m_schedule->last());
+    const WebCore::EventActionScheduleItem& last = m_schedule->at(lastIndex);
+
+    bool success = tryExecuteEventActionDescriptor(eventActionRegister, last);
 
     if (success) {
-        m_schedule->removeLast();
+        m_schedule->remove(lastIndex);
 
         m_skipAfterNextTry = false;
         m_eventActionTimeoutTimer.stop();
@@ -160,8 +165,8 @@ bool ReplayScheduler::executeDelayedEventAction(WebCore::EventActionRegister* ev
 
         WTF::WarningCollectorReport("WEBERA_SCHEDULER", "Event action skipped after timeout.", detail.str());
 
-        m_schedule_backlog.append(m_schedule->last());
-        m_schedule->removeLast();
+        m_schedule_backlog.append(last);
+        m_schedule->remove(lastIndex);
 
         return true; // Go to the next event action now
 
@@ -169,8 +174,7 @@ bool ReplayScheduler::executeDelayedEventAction(WebCore::EventActionRegister* ev
 
     if (!m_eventActionTimeoutTimer.isActive()) {
 
-        const WebCore::EventActionScheduleItem& item = m_schedule->last();
-        const WTF::EventActionDescriptor& nextToSchedule = item.second;
+        const WTF::EventActionDescriptor& nextToSchedule = last.second;
         const std::string& eventActionType = nextToSchedule.getType();
 
         if (eventActionType == "DOMTimer") {
@@ -362,6 +366,7 @@ bool ReplayScheduler::tryExecuteEventActionDescriptor(
     } // End fuzzy non-deterministic match
 
     if (found) {
+        m_lastEventActionId = m_nextEventActionId;
         m_nextEventActionId = WebCore::HBAllocateEventActionId();
     }
 
@@ -374,14 +379,20 @@ bool ReplayScheduler::runEventAction(
         WTF::EventActionId nextToScheduleId,
         const WTF::EventActionDescriptor& nextToSchedule) {
 
-    WTF::Vector<WTF::EventActionDescriptor> postponedEvents = m_postponedEvents; // copy
+    if (m_nextEventActionId != m_lastEventActionId) {
+        runPostponedEventActions(eventActionRegister);
+    }
+
+    return eventActionRegister->runEventAction(m_nextEventActionId, nextToScheduleId, nextToSchedule);
+}
+
+void ReplayScheduler::runPostponedEventActions(WebCore::EventActionRegister* eventActionRegister) {
+    WTF::Vector<WTF::EventActionDescriptor> postponedEvents = m_postponedEvents;
     m_postponedEvents.clear();
     for (size_t i = 0; i < postponedEvents.size(); ++i) {
         const WTF::EventActionDescriptor& descriptor = postponedEvents[i];
         eventActionRegister->runEventAction(descriptor);
     }
-
-    return eventActionRegister->runEventAction(m_nextEventActionId, nextToScheduleId, nextToSchedule);
 }
 
 void ReplayScheduler::slEventActionTimeout()

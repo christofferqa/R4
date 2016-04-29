@@ -16,7 +16,6 @@ OUTDIR=$2
 shift
 shift
 
-PROTOCOL=http
 AUTO=0
 VERBOSE=0
 COOKIESCMD=""
@@ -25,6 +24,7 @@ TIMEOUT=60
 TIMEOUTCMD=""
 BOUND=""
 EXTRAS=""
+PROTOCOL=http
 PROXYCMD=""
 TRIGGER_EVENT_TYPE=""
 TRIGGER_NODE_IDENTIFIER=""
@@ -55,6 +55,9 @@ while [[ $# > 0 ]]; do
         --depth)
             shift
             DEPTH=$1
+            ;;
+        --protocol=*)
+            PROTOCOL="${1#*=}"
             ;;
         --proxy)
             PROXYCMD="-proxy 127.0.0.1:8081"
