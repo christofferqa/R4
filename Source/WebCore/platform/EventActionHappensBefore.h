@@ -57,6 +57,13 @@ public:
         return m_currentEventActionId;
     }
 
+    WTF::EventActionId currentEventActionRoot() const {
+        if (m_currentEventActionRootId == 0) {
+            CRASH();
+        }
+        return m_currentEventActionRootId;
+    }
+
     WTF::EventActionId lastEventAction() const {
         if (m_lastEventAction == 0) {
             CRASH();
@@ -64,7 +71,7 @@ public:
         return m_lastEventAction;
     }
 
-    void setCurrentEventAction(WTF::EventActionId newId, ActionLog::EventActionType type);
+    void setCurrentEventAction(WTF::EventActionId newId, WTF::EventActionId newRootId, ActionLog::EventActionType type);
     void setCurrentEventActionInvalid(bool commit);
 
     bool isCurrentEventActionValid() const {
@@ -102,6 +109,7 @@ public:
 
 private:
     WTF::EventActionId m_currentEventActionId;
+    WTF::EventActionId m_currentEventActionRootId;
     WTF::EventActionId m_nextEventActionId;
 
     WTF::EventActionId m_lastUIEventAction;

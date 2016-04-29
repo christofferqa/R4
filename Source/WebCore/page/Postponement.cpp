@@ -65,12 +65,12 @@ void Postponement::install(ScriptExecutionContext* context, PassOwnPtr<Scheduled
 
     std::string url = action->getCalledUrl().empty() ? std::string("-") : WTF::EventActionDescriptor::escapeParam(action->getCalledUrl());
     WTF::EventActionId calleeEventActionId = HBIsCurrentEventActionValid() ? HBCurrentEventAction() : -1;
-
+    WTF::EventActionId calleeEventActionRootId = HBIsCurrentEventActionValid() ? HBCurrentEventActionRoot() : -1;
 
     std::stringstream params;
     params << url << ","
            << action->getCalledLine() << ","
-           << -1 << "," // the original event action id that triggered this postponement (set by ReplayScheduler)
+           << calleeEventActionRootId << ","
            << calleeEventActionId << ","
            << Postponement::getNextSameUrlSequenceNumber(url, action->getCalledLine(), calleeEventActionId);
 

@@ -79,8 +79,9 @@ void EventActionsHB::addTimedArc(WTF::EventActionId earlier, WTF::EventActionId 
     }
 }
 
-void EventActionsHB::setCurrentEventAction(WTF::EventActionId newEventActionId, ActionLog::EventActionType type) {
+void EventActionsHB::setCurrentEventAction(WTF::EventActionId newEventActionId, WTF::EventActionId newEventActionRootId, ActionLog::EventActionType type) {
     m_currentEventActionId = newEventActionId;
+    m_currentEventActionRootId = newEventActionRootId;
 
     ActionLogEnterOperation(newEventActionId, type);
 

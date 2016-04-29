@@ -102,7 +102,7 @@ int DOMTimer::install(ScriptExecutionContext* context, PassOwnPtr<ScheduledActio
 
     std::string url = action->getCalledUrl().empty() ? std::string("-") : WTF::EventActionDescriptor::escapeParam(action->getCalledUrl());
     std::string singleShotStr = (singleShot ? "true" : "false");
-    WTF::EventActionId calleeEventActionId = HBIsCurrentEventActionValid() ? HBCurrentEventAction() : -1;
+    WTF::EventActionId calleeEventActionId = HBIsCurrentEventActionValid() ? HBCurrentEventActionRoot() : -1;
 
     std::stringstream params;
     params << url << ","

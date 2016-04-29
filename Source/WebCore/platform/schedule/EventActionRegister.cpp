@@ -115,7 +115,7 @@ bool EventActionRegister::runEventAction(WTF::EventActionId newEventActionId, WT
             WTF::EventActionId eventActionId = newEventActionId == -1 ? HBAllocateEventActionId() : newEventActionId;
 
             eventActionDispatchStart(eventActionId, originalEventActionId, descriptor);
-            HBEnterEventAction(eventActionId, toActionLogType(descriptor.getCategory()));
+            HBEnterEventAction(eventActionId, eventActionId, toActionLogType(descriptor.getCategory()));
             ActionLogEventTriggered(l[0].object);
 
             if (m_verbose) {
@@ -146,9 +146,15 @@ bool EventActionRegister::runEventAction(WTF::EventActionId newEventActionId, WT
     // Pre-Execution
 
     WTF::EventActionId id = newEventActionId == -1 ? HBAllocateEventActionId() : newEventActionId;
+    WTF::EventActionId rootId = id;
+
+    if (strcmp(descriptor.getType(), "Postponement") == 0) {
+        std::string rootIdStr = descriptor.getParameter(2);
+        rootId = atoi(rootIdStr.c_str());
+    }
 
     eventActionDispatchStart(id, originalEventActionId, descriptor);
-    HBEnterEventAction(id, toActionLogType(descriptor.getCategory()));
+    HBEnterEventAction(id, rootId, toActionLogType(descriptor.getCategory()));
     ActionLogEventTriggered(l.front().object);
 
 	// Execute the function.
@@ -182,7 +188,7 @@ bool EventActionRegister::runEventAction(WTF::EventActionId newEventActionId, WT
 void EventActionRegister::enterGhostEventAction(WTF::EventActionId id, ActionLog::EventActionType type)
 {
     ActionLogStrictMode(false);
-    HBEnterEventAction(id, ActionLog::UNKNOWN);
+    HBEnterEventAction(id, id, ActionLog::UNKNOWN);
 }
 
 void EventActionRegister::exitGhostEventAction()
@@ -200,7 +206,7 @@ void EventActionRegister::enterImmediateEventAction(ActionLog::EventActionType t
     }
 
     eventActionDispatchStart(id, -1, descriptor);
-    HBEnterEventAction(id, type);
+    HBEnterEventAction(id, id, type);
 }
 
 void EventActionRegister::exitImmediateEventAction()

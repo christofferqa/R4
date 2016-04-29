@@ -46,14 +46,20 @@ WTF::EventActionId HBCurrentEventAction()
     return threadGlobalData().threadTimers().happensBefore().currentEventAction();
 }
 
+WTF::EventActionId HBCurrentEventActionRoot()
+{
+    threadGlobalData().threadTimers().happensBefore().checkInValidEventAction();
+    return threadGlobalData().threadTimers().happensBefore().currentEventActionRoot();
+}
+
 WTF::EventActionId HBAllocateEventActionId()
 {
     return threadGlobalData().threadTimers().happensBefore().allocateEventActionId();
 }
 
-void HBEnterEventAction(WTF::EventActionId id, ActionLog::EventActionType type)
+void HBEnterEventAction(WTF::EventActionId id, WTF::EventActionId rootId, ActionLog::EventActionType type)
 {
-    threadGlobalData().threadTimers().happensBefore().setCurrentEventAction(id, type);
+    threadGlobalData().threadTimers().happensBefore().setCurrentEventAction(id, rootId, type);
 }
 
 void HBExitEventAction(bool commit)
