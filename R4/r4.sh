@@ -109,7 +109,7 @@ else
     echo "Initial recording errord out, see $DST_OUTPUT_DIR/$ID/runner/record.log"
 fi
 
-rm -rf output/$ID
+rm -rf $DST_OUTPUT_DIR/$ID
 mv $OUTDIR $DST_OUTPUT_DIR/$ID
 
 if [[ "$REPORT" == "true" ]]; then
